@@ -95,7 +95,7 @@ func (r *FooReconciler) Reconcile(
 	}
 	// 上記で作ったdeploymentをクラスタに適用（作成or更新）
 	_, err := controllerutil.CreateOrUpdate(ctx, r.Client, dep, func() error {
-		dep.Spec.Replicas = &foo.Spec.Replicas
+		dep.Spec.Replicas = &foo.Spec.Replicas //fooのspec.replicasの値をdeploymentに代入する
 		return nil
 	})
 
@@ -110,7 +110,51 @@ func (r *FooReconciler) Reconcile(
 		"deploymentName", foo.Spec.DeploymentName,
 		"replicas", foo.Spec.Replicas,
 	)
+	//deploymentの情報を格納するための変数を定義する
+	var deployment appsv1.Deployment
 
+	//Deploymentを検索するためのキーを作成する
+	var deploymentNamespacedName = client.ObjectKey{
+		Namespace: req.Namespace,
+		Name:      foo.Spec.DeploymentName,
+	}
+
+	// 上で作ったキーをもとに欲しいdeploymentを抽出してdeployment変数に格納する
+	if err := r.Get(ctx, deploymentNamespacedName, &deployment); err != nil {
+
+		logger.Error(err, "unable to fetch Deployment")
+
+		// Deploymentが存在しない場合は無視する
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	// Deploymentで実際に稼働しているPod数を取得する
+	availableReplicas := deployment.Status.AvailableReplicas
+
+	// Foo.statusと同じ値なら更新不要なので終了
+	if availableReplicas == foo.Status.AvailableReplicas {
+		return ctrl.Result{}, nil
+	}
+
+	// Deploymentの状態をFoo.statusへ反映する
+	foo.Status.AvailableReplicas = availableReplicas
+
+	// Foo.statusをAPIサーバーへ保存する
+	if err := r.Status().Update(ctx, &foo); err != nil {
+
+		logger.Error(err, "unable to update Foo status")
+
+		return ctrl.Result{}, err
+	}
+
+	// Foo.statusを更新したことをEventとして記録する
+	r.Recorder.Eventf(
+		&foo,
+		corev1.EventTypeNormal,
+		"Updated",
+		"Update foo.status.AvailableReplicas: %d",
+		foo.Status.AvailableReplicas,
+	)
 	return ctrl.Result{}, nil
 }
 
