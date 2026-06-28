@@ -22,3 +22,35 @@ sudo k3s ctr images import foo-operator.tar
 ```
 make deploy
 ```
+
+# 主要コンポーネント
+```
+.
+├── cmd/
+│   └── main.go
+├── api/
+│   └── v1alpha1/
+│       ├── foo_types.go                  # CRD定義
+│       ├── groupversion_info.go
+│       └── zz_generated.deepcopy.go
+├── internal/
+│   └── controller/
+│       └── foo_controller.go             # 本体ロジック(Reconcile)
+├── config/
+│   ├── crd/
+│   │   ├── bases/
+│   │   │   └── *.yaml
+│   │   └── kustomization.yaml
+│   ├── rbac/
+│   │   ├── role.yaml
+│   │   ├── role_binding.yaml
+│   │   └── service_account.yaml
+│   ├── manager/
+│   │   └── manager.yaml                   # ControllerのDeployment定義(standby数など)
+│   ├── default/
+│   │   └── kustomization.yaml
+│   └── samples/
+│       └── *.yaml
+├── Makefile
+└── Dockerfile
+```
