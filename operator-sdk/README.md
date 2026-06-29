@@ -22,7 +22,16 @@ sudo k3s ctr images import foo-operator.tar
 ```
 make deploy
 ```
-
+# webhookの追加
+## Validation Webhook
+```sh
+operator-sdk create webhook \
+  --group samplecontroller \
+  --version v1alpha1 \
+  --kind Foo \
+  --defaulting \
+  --programmatic-validation
+```
 # 主要コンポーネント
 ```
 .

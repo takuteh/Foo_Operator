@@ -39,6 +39,7 @@ import (
 
 	samplecontrollerv1alpha1 "github.com/takuteh/Foo_Operator/operator-sdk/api/v1alpha1"
 	"github.com/takuteh/Foo_Operator/operator-sdk/internal/controller"
+	webhookv1alpha1 "github.com/takuteh/Foo_Operator/operator-sdk/internal/webhook/v1alpha1"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -184,8 +185,8 @@ func main() {
 		WebhookServer:          webhookServer,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-        LeaderElectionID:       "936471f6.samplecontroller.samplecontroller.example.com",
-		
+		LeaderElectionID:       "936471f6.samplecontroller.samplecontroller.example.com",
+
 		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
 		// when the Manager ends. This requires the binary to immediately end when the
 		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly
@@ -210,6 +211,13 @@ func main() {
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Foo")
 		os.Exit(1)
+	}
+	// nolint:goconst
+	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
+		if err := webhookv1alpha1.SetupFooWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "Foo")
+			os.Exit(1)
+		}
 	}
 	// +kubebuilder:scaffold:builder
 
