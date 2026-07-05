@@ -22,6 +22,10 @@ sudo k3s ctr images import foo-operator.tar
 ```
 make deploy
 ```
+## 削除
+```
+make undeploy
+```
 # webhookの追加
 ## Validation Webhook
 ```sh
