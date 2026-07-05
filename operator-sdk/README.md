@@ -36,6 +36,11 @@ operator-sdk create webhook \
   --defaulting \
   --programmatic-validation
 ```
+## cert-managerをインストール
+```
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.18.2/cert-manager.yaml
+```
+
 # 主要コンポーネント
 ```
 .
