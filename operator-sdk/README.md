@@ -45,30 +45,44 @@ kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/
 ```
 .
 ├── cmd/
-│   └── main.go
+│   └── main.go                            # Manager・Controller・Webhookの起動
 ├── api/
 │   └── v1alpha1/
-│       ├── foo_types.go                  # CRD定義
+│       ├── foo_types.go                   # CRD定義
 │       ├── groupversion_info.go
 │       └── zz_generated.deepcopy.go
 ├── internal/
-│   └── controller/
-│       └── foo_controller.go             # 本体ロジック(Reconcile)
+│   ├── controller/
+│   │   └── foo_controller.go              # Reconcile処理
+│   └── webhook/
+│       └── v1alpha1/
+│           └── foo_webhook.go             # Default/Validateの実装
 ├── config/
 │   ├── crd/
 │   │   ├── bases/
-│   │   │   └── *.yaml
+│   │   │   └── *.yaml                     # CRD
+│   │   └── kustomization.yaml
+│   ├── webhook/
+│   │   ├── manifests.yaml                 # Mutating/ValidatingWebhookConfiguration
+│   │   ├── service.yaml                   # Webhook Service
+│   │   └── kustomization.yaml
+│   ├── certmanager/
+│   │   ├── issuer.yaml                    # Issuer
+│   │   ├── certificate-webhook.yaml       # Webhook用証明書
+│   │   ├── certificate-metrics.yaml       # Metrics用証明書
 │   │   └── kustomization.yaml
 │   ├── rbac/
 │   │   ├── role.yaml
 │   │   ├── role_binding.yaml
 │   │   └── service_account.yaml
 │   ├── manager/
-│   │   └── manager.yaml                   # ControllerのDeployment定義(standby数など)
+│   │   └── manager.yaml                   # Controller Deployment
 │   ├── default/
-│   │   └── kustomization.yaml
+│   │   ├── kustomization.yaml             # 全リソースをまとめてデプロイ
+│   │   ├── manager_webhook_patch.yaml     # Webhook有効化
+│   │   └── manager_metrics_patch.yaml
 │   └── samples/
-│       └── *.yaml
+│       └── *.yaml                         # サンプルCR
 ├── Makefile
 └── Dockerfile
 ```
