@@ -18,6 +18,10 @@ docker save -o foo-operator.tar foo-operator:dev
 ```
 sudo k3s ctr images import foo-operator.tar
 ```
+- 同じタグのイメージがあると、古い`daigest`を使用してしまうため、一度削除
+```
+sudo k3s ctr images rm docker.io/library/foo-operator:dev
+```
 ## kubernetesへデプロイ
 ```
 make deploy

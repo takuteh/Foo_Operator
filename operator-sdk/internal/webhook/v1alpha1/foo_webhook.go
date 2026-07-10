@@ -94,7 +94,9 @@ func (v *FooCustomValidator) ValidateCreate(_ context.Context, obj runtime.Objec
 	}
 	foolog.Info("Validation for Foo upon creation", "name", foo.GetName())
 
-	// TODO(user): fill in your validation logic upon object creation.
+	    if foo.Spec.Replicas < 0 {
+        return nil, fmt.Errorf("spec.replicas must be >= 0")
+    }
 
 	return nil, nil
 }

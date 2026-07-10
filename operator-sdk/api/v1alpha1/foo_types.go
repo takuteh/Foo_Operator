@@ -39,7 +39,6 @@ type FooSpec struct {
 	DeploymentName string `json:"deploymentName"`
 
 	// +kubebuilder:validation:Required
-	// +kubebuilder:validation:Minimum=1
 	Replicas int32 `json:"replicas"`
 }
 
